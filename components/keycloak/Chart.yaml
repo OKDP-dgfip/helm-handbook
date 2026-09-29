@@ -1,0 +1,11 @@
+apiVersion: v2
+name: keycloak
+description: A Helm chart for deploying Keycloak
+type: application
+version: 0.1.0
+appVersion: "26.7.4"
+
+dependencies:
+  - name: keycloakx
+    version: 7.3.2
+    repository: oci://ghcr.io/codecentric/helm-charts
