@@ -1,0 +1,16 @@
+apiVersion: v2
+name: helm-handbook
+description: A Helm chart for deploying OKDP
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+dependencies:
+  # Local charts
+  - name: keycloak
+    version: 0.1.0
+    repository: "file://components/keycloak"
+    condition: keycloak.enabled
+    alias: keycloak
+    tags:
+          - idp
