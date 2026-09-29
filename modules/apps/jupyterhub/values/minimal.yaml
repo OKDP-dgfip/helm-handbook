@@ -1,0 +1,93 @@
+#
+# Copyright 2026 The OKDP Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# JupyterHub with the minimum of prerequisites: no identity provider, no
+# ingress, no TLS, no external database, no object store. The cluster only
+# has to provide a default StorageClass, for the hub database and the home
+# directory of each user.
+#
+# Chart jupyterhub 4.3.3 (JupyterHub 5.4), the version OKDP runs.
+
+hub:
+  config:
+    JupyterHub:
+      authenticator_class: shared-password
+    SharedPasswordAuthenticator:
+      # One password for every user name, eight characters at least.
+      # For a test installation only.
+      user_password: jupyterhub
+    Authenticator:
+      # JupyterHub 5 lets nobody in unless told otherwise.
+      allow_all: true
+  db:
+    type: sqlite-pvc
+    pvc:
+      storage: 1Gi
+  extraConfig:
+    okdp.py: |
+      c.KubeSpawner.delete_grace_period = 120
+      c.ServerApp.allow_root = True
+
+proxy:
+  service:
+    type: ClusterIP
+
+cull:
+  enabled: false
+
+scheduling:
+  userScheduler:
+    enabled: false
+  userPlaceholder:
+    enabled: false
+
+prePuller:
+  hook:
+    enabled: false
+  continuous:
+    enabled: false
+
+singleuser:
+  # OKDP build of the Jupyter scientific Python image.
+  image:
+    name: quay.io/okdp/jupyter/scipy-notebook
+    tag: python-3.12.12-hub-5.4.2-lab-4.5.0
+  defaultUrl: /lab
+  startTimeout: 600
+  # The image starts as root and drops to the JupyterHub user: this is how
+  # the Jupyter docker-stacks images take over a mounted home directory.
+  uid: 0
+  fsGid: 100
+  extraEnv:
+    NB_USER: "$(JUPYTERHUB_USER)"
+    NB_UID: "1001"
+    NB_GID: "100"
+    CHOWN_HOME: "yes"
+    CHOWN_HOME_OPTS: "-R"
+  storage:
+    type: dynamic
+    capacity: 1Gi
+    homeMountPath: /home/{username}
+  cpu:
+    guarantee: 0.5
+    limit: 1
+  memory:
+    guarantee: 1G
+    limit: 2G
+  cloudMetadata:
+    blockWithIptables: false
+  networkPolicy:
+    enabled: false
