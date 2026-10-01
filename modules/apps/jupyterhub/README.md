@@ -104,18 +104,6 @@ helm uninstall jupyterhub -n jupyterhub
 kubectl delete namespace jupyterhub            # also deletes the volumes of the users
 ```
 
-## Roadmap
-
-This module covers a standalone JupyterHub. Each integration below will come as a separate values file in `values/`, added to the install command with one more `-f`. `minimal.yaml` stays unchanged.
-
-| Integration | Replaces | Brings |
-|---|---|---|
-| Identity provider (OIDC) | the shared password | Sign-in with the platform accounts, roles from the platform groups. |
-| Ingress and TLS | `port-forward` | A host name served over HTTPS. |
-| Database server | sqlite on a volume | The hub state on PostgreSQL. |
-| Object storage (S3) | the user volume alone | Shared datasets and notebooks on S3. |
-| Spark | Python kernels alone | PySpark kernels and the OKDP Spark notebook images. |
-
 ## References
 
 - Chart: [Zero to JupyterHub with Kubernetes](https://z2jh.jupyter.org), chart `jupyterhub` [4.3.3](https://github.com/jupyterhub/zero-to-jupyterhub-k8s/tree/4.3.3).
